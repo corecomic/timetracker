@@ -10,6 +10,7 @@ Page {
 
     property QueryDialog deleteDialog
     property int pIndex: -1
+
     /**
      * Fill list model with database values
      */
@@ -43,6 +44,7 @@ Page {
 
         listView.model = listModel;
     }
+
 
     /**
      * Displays the delete query dialog.
@@ -84,6 +86,9 @@ Page {
         }
     }
 
+
+
+
     // Update page data on page PageStatus.Activating state
     onStatusChanged: {
         if (status === PageStatus.Activating) {
@@ -91,8 +96,6 @@ Page {
         }
         //console.debug("MainPage.qml: onStatusChanged:", status);
     }
-
-
 
     // Page Header
     PageHeader {
@@ -136,30 +139,53 @@ Page {
             id: listItem
 
             property int projectID: model.projectID
+            property string projectName: model.name
             property string projectDescription: model.description
             property int projectActive: model.active
 
-            height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
+            height: UIConstants.LIST_ITEM_HEIGHT_LARGE
             width: listView.width
 
-//            Rectangle {
-//                radius: 8
-//                anchors.fill: parent
-//                opacity: 0.7
-//                color: "#1874CD"
-//                visible: itemMouseArea.pressed
-//            }
+            Rectangle {
+                radius: 8
+                anchors.fill: parent
+                opacity: 0.7
+                color: "lightsteelblue"
+                visible: itemMouseArea.pressed
+            }
 
             Row {
                 spacing: 20
-                anchors.fill: listItem.paddingItem
+                anchors.fill: parent
 
                 Switch {
+                    anchors.verticalCenter: parent.verticalCenter
                     id: switchComponent
-                    checked: false
+                    checked: (listItem.projectActive === -1) ? false : true
+
+                    onCheckedChanged: {
+                        //console.debug("MainPage.qml: onCheckedChanged fired with projectActive:", listItem.projectActive);
+                        //console.debug("MainPage.qml: onCheckedChanged fired with checked:", checked);
+                        if (listItem.projectActive !== -1 && !checked){
+                            db.updateEndtime(listItem.projectActive, new Date());
+                            db.updateProjectActive(listItem.projectID, -1);
+                            listItem.projectActive = -1;
+                            //fillListModel();
+                        }
+                        else if (listItem.projectActive === -1 && checked) {
+                            var insertID = db.insertStarttime(listItem.projectID, new Date());
+                            db.updateProjectActive(listItem.projectID, insertID);
+                            listItem.projectActive = insertID;
+                            //fillListModel();
+                            //console.debug("MainPage.qml: insertStarttime projectID:", listItem.projectID);
+                            //console.debug("MainPage.qml: insertStarttime time:", new Date());
+                            //console.debug("MainPage.qml: insertStarttime insertID:", insertID);
+                        }
+                    }
                 }
 
                 Column {
+                    id: columnComponent
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
@@ -172,6 +198,26 @@ Page {
                         }
 
                         text: model.titleText
+                        MouseArea {
+                            id: itemMouseArea
+                            //anchors.fill: parent
+                            width: columnComponent.width
+                            height: UIConstants.LIST_ITEM_HEIGHT_LARGE
+
+                            onClicked: {
+                                listView.currentIndex = index;
+                                pageStack.push(Qt.resolvedUrl("DetailsPage.qml"),
+                                               { projectID: listItem.projectID,
+                                                 projectName: listItem.projectName,
+                                                 projectDescription: listItem.projectDescription,
+                                                 projectActive: listItem.projectActive
+                                               });
+                            }
+                            onPressAndHold: {
+                                listView.currentIndex = index;
+                                contextMenu.open();
+                            }
+                        }
                     }
                     Text {
                         color: UIConstants.COLOR_SECONDARY_FOREGROUND
@@ -189,28 +235,18 @@ Page {
                                 return "Available";
                             }
                         }
-                        width: listView.width/2 //TODO: correct width
+                        width: listView.width-switchComponent.width*2
                         elide: Text.ElideRight
                     }
+
                 }
             }
-
-            MouseArea {
-                id: itemMouseArea
-                anchors.fill: parent
-
-                onClicked: {
-                    listView.currentIndex = index;
-                    pageStack.push(Qt.resolvedUrl("DetailsPage.qml"),
-                                   { projectID: listItem.projectID,
-                                     pDescription: listItem.projectDescription,
-                                     pActive: listItem.projectActive
-                                   });
-                }
-                onPressAndHold: {
-                    listView.currentIndex = index;
-                    contextMenu.open();
-                }
+            Rectangle {
+              height: 1
+              width: parent.width
+              anchors.top: parent.bottom
+              anchors.topMargin: 1
+              color: "white"
             }
         }
     }

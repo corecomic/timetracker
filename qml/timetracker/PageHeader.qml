@@ -18,9 +18,24 @@ Rectangle {
         id: appTitle
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 24
-        font.pixelSize: 30
+        anchors.leftMargin: 16
+        font.pixelSize: 32
         color: "white"
+    }
+
+    Rectangle {
+      height: 1
+      width: parent.width
+      anchors.bottom: parent.bottom
+      color: "#10000000"
+    }
+
+    Rectangle {
+      height: 1
+      width: parent.width
+      anchors.top: parent.bottom
+      anchors.topMargin: 1
+      color: "white"
     }
 
     BusyIndicator {

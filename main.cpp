@@ -16,6 +16,11 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     db->open();
     viewer.rootContext()->setContextProperty("db", db);
 
+    // Set application version
+    app->setApplicationVersion(APP_VERSION);
+    viewer.rootContext()->setContextProperty("appversion",
+                                           app->applicationVersion());
+
     viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     viewer.setMainQmlFile(QLatin1String("qml/timetracker/main.qml"));
     viewer.showExpanded();

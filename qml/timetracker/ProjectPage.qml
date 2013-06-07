@@ -34,26 +34,26 @@ Page {
     // Page Header
     PageHeader {
         id: appTitleRect
-        text: ""
+        color: "lightgray"
+        //text: ""
 
         ToolBarLayout {
             Item { width: UIConstants.SMALL_MARGIN } // Make margins
             ToolButton {
-                id: cancelButtonEdit
+                id: cancelButton
                 flat: false
                 text: "Cancel"
                 onClicked: appWindow.pageStack.pop();
             }
-            Item { width: UIConstants.SMALL_MARGIN } // Space between
+            Item { width: UIConstants.BUTTON_SPACING } // Space between
             ToolButton {
-                id: saveButtonEdit
+                id: saveButton
                 flat: false
                 text: "Save"
                 onClicked: projectPage.addProjectToDatabase();
             }
             Item { width: UIConstants.SMALL_MARGIN } // Make margins
         }
-
     }
 
 

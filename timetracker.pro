@@ -1,3 +1,9 @@
+# App version
+VERSION = 0.1.0
+
+# Publish the app version to source code.
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
 # Add more folders to ship with the application, here
 folder_01.source = qml/timetracker
 folder_01.target = qml
