@@ -100,7 +100,7 @@ Page {
     // Page Header
     PageHeader {
         id: appTitleRect
-        text: "Timetracker"
+        text: "Time Tracker"
     }
 
     ScrollDecorator {
@@ -115,13 +115,14 @@ Page {
             left: parent.left
             right: parent.right
             bottom: parent.bottom
-            margins: UIConstants.DEFAULT_MARGIN
+            margins: UIConstants.HALF_DEFAULT_MARGIN
         }
 
         clip: true
         delegate: listDelegate
         model: listModel
         focus: true
+        spacing: 2
     }
 
     ListModel {
@@ -146,6 +147,7 @@ Page {
             height: UIConstants.LIST_ITEM_HEIGHT_LARGE
             width: listView.width
 
+            // Transparent overlay on clicked
             Rectangle {
                 radius: 8
                 anchors.fill: parent
@@ -154,32 +156,50 @@ Page {
                 visible: itemMouseArea.pressed
             }
 
-            Row {
-                spacing: 20
+            MouseArea {
+                id: itemMouseArea
                 anchors.fill: parent
 
+                onClicked: {
+                    listView.currentIndex = index;
+                    pageStack.push(Qt.resolvedUrl("DetailsPage.qml"),
+                                   { projectID: listItem.projectID,
+                                     projectName: listItem.projectName,
+                                     projectDescription: listItem.projectDescription,
+                                     projectActive: listItem.projectActive
+                                   });
+                }
+                onPressAndHold: {
+                    listView.currentIndex = index;
+                    contextMenu.open();
+                }
+            }
+
+            Row {
+                id: rowComponent
+                spacing: 20
+                anchors {
+                    fill: parent
+                    leftMargin: UIConstants.HALF_DEFAULT_MARGIN
+                    rightMargin: UIConstants.HALF_DEFAULT_MARGIN
+                }
+
                 Switch {
-                    anchors.verticalCenter: parent.verticalCenter
                     id: switchComponent
+                    anchors.verticalCenter: parent.verticalCenter
                     checked: (listItem.projectActive === -1) ? false : true
 
                     onCheckedChanged: {
                         //console.debug("MainPage.qml: onCheckedChanged fired with projectActive:", listItem.projectActive);
-                        //console.debug("MainPage.qml: onCheckedChanged fired with checked:", checked);
                         if (listItem.projectActive !== -1 && !checked){
                             db.updateEndtime(listItem.projectActive, new Date());
                             db.updateProjectActive(listItem.projectID, -1);
                             listItem.projectActive = -1;
-                            //fillListModel();
                         }
                         else if (listItem.projectActive === -1 && checked) {
                             var insertID = db.insertStarttime(listItem.projectID, new Date());
                             db.updateProjectActive(listItem.projectID, insertID);
                             listItem.projectActive = insertID;
-                            //fillListModel();
-                            //console.debug("MainPage.qml: insertStarttime projectID:", listItem.projectID);
-                            //console.debug("MainPage.qml: insertStarttime time:", new Date());
-                            //console.debug("MainPage.qml: insertStarttime insertID:", insertID);
                         }
                     }
                 }
@@ -187,6 +207,8 @@ Page {
                 Column {
                     id: columnComponent
                     anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - switchComponent.width -
+                           iconComponent.width - 2*rowComponent.spacing
 
                     Text {
                         color: UIConstants.COLOR_FOREGROUND
@@ -198,26 +220,8 @@ Page {
                         }
 
                         text: model.titleText
-                        MouseArea {
-                            id: itemMouseArea
-                            //anchors.fill: parent
-                            width: columnComponent.width
-                            height: UIConstants.LIST_ITEM_HEIGHT_LARGE
-
-                            onClicked: {
-                                listView.currentIndex = index;
-                                pageStack.push(Qt.resolvedUrl("DetailsPage.qml"),
-                                               { projectID: listItem.projectID,
-                                                 projectName: listItem.projectName,
-                                                 projectDescription: listItem.projectDescription,
-                                                 projectActive: listItem.projectActive
-                                               });
-                            }
-                            onPressAndHold: {
-                                listView.currentIndex = index;
-                                contextMenu.open();
-                            }
-                        }
+                        width: parent.width
+                        elide: Text.ElideRight
                     }
                     Text {
                         color: UIConstants.COLOR_SECONDARY_FOREGROUND
@@ -235,18 +239,26 @@ Page {
                                 return "Available";
                             }
                         }
-                        width: listView.width-switchComponent.width*2
+                        width: parent.width
                         elide: Text.ElideRight
                     }
+                }
 
+                Image {
+                    id: iconComponent
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: sourceSize.height
+                    width: sourceSize.width
+                    source: "image://theme/icon-m-common-drilldown-arrow" + platformStyle.__invertedString
                 }
             }
-            Rectangle {
-              height: 1
-              width: parent.width
-              anchors.top: parent.bottom
-              anchors.topMargin: 1
-              color: "white"
+            // Divider
+            Image {
+                id: image
+                width: parent.width
+                height: sourceSize.height
+                anchors.top: parent.bottom
+                source: "image://theme/meegotouch-groupheader" + (theme.inverted ? "-inverted" : "") + "-background"
             }
         }
     }
@@ -279,7 +291,7 @@ Page {
                 topMargin: 20
             }
 
-            onClicked: pageStack.push(Qt.resolvedUrl("ProjectPage.qml"));
+            onClicked: projectSheet.open();
         }
     }
 
@@ -293,11 +305,10 @@ Page {
                 onClicked: {
                     var currIndex = listView.currentIndex;
                     var listModelItem = listModel.get(currIndex);
-                    pageStack.push(Qt.resolvedUrl("ProjectPage.qml"),
-                                   { projectID: listModelItem.projectID,
-                                     projectName: listModelItem.name,
-                                     projectDescription: listModelItem.description
-                                   });
+                    projectSheet.projectID  = listModelItem.projectID;
+                    projectSheet.projectName = listModelItem.name;
+                    projectSheet.projectDescription = listModelItem.description;
+                    projectSheet.open()
                 }
             }
             MenuItem {
@@ -310,4 +321,8 @@ Page {
             }
         }
     }
+    ProjectPage {
+        id: projectSheet
+    }
+
 }

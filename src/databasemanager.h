@@ -122,6 +122,10 @@ public:
                                          const QVariant& endtime);
     Q_INVOKABLE QVariant insertStarttime(const QVariant& pid,
                                          const QVariant& starttime);
+    Q_INVOKABLE QVariant updateTimesheet(const QVariant& id,
+                                         const QVariant& pid,
+                                         const QVariant& starttime,
+                                         const QVariant& endtime);
     Q_INVOKABLE QVariant updateEndtime(const QVariant& id,
                                        const QVariant& endtime);
     Q_INVOKABLE void deleteTimesheet(const int id);

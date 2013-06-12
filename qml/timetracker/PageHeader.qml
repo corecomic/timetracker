@@ -1,13 +1,15 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 
+import "UIConstants.js" as UIConstants
+
 Rectangle {
     id: root
 
     property alias text: appTitle.text
     property alias busy: busyIndicator.running
 
-    height: 72
+    height: UIConstants.HEADER_DEFAULT_HEIGHT_PORTRAIT
     color: "steelblue"
     anchors.top: parent.top
     anchors.left: parent.left
@@ -16,11 +18,17 @@ Rectangle {
 
     Label {
         id: appTitle
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.leftMargin: 16
-        font.pixelSize: 32
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            leftMargin: UIConstants.DEFAULT_MARGIN
+            right: parent.right
+            rightMargin: UIConstants.DEFAULT_MARGIN
+        }
+        font.pixelSize: UIConstants.FONT_XLARGE
         color: "white"
+        width: implicitWidth
+        elide: Text.ElideRight
     }
 
     Rectangle {

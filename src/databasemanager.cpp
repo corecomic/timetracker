@@ -147,11 +147,15 @@ bool DatabaseManager::openDB()
     db = QSqlDatabase::addDatabase("QSQLITE");
 
     QString newpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    qDebug() << "SQL DataLocation..:" << newpath.append(QDir::separator()).append("time-tracker");
+    newpath.append(QDir::separator()).append("time-tracker");
+    //QDir::mkpath(newpath);
+    newpath = QDir::toNativeSeparators(newpath);
+    qDebug() << "SQL DataLocation..:" << newpath;
 
     QString path(QDir::home().path());
     path.append(QDir::separator()).append("time-tracker.db.sqlite");
     path = QDir::toNativeSeparators(path);
+
     db.setDatabaseName(path);
 
     // Open databasee
@@ -335,15 +339,17 @@ QVariant DatabaseManager::insertTimesheet(const QVariant& pid,
 {
     // Insert new timesheet entry into table
     bool ret = false;
+    QTime zerotime;
+
     if (db.isOpen()){
         QSqlQuery query;
         ret = query.prepare("INSERT INTO timesheet (project_id, start_time, end_time, run_time) "
-                            "VALUES (:project_id, :start_time, :end_time, TIME('00:00:00', ':run_time seconds')))");
+                            "VALUES (:project_id, :start_time, :end_time, :run_time)");
         if (ret) {
             query.bindValue(":project_id", pid.toInt());
             query.bindValue(":start_time", starttime.toDateTime());
             query.bindValue(":end_time", endtime.toDateTime());
-            query.bindValue(":run_time", starttime.toDateTime().secsTo(endtime.toDateTime()));
+            query.bindValue(":run_time", zerotime.addSecs(starttime.toDateTime().secsTo(endtime.toDateTime())));
             query.exec();
         }
         if (!ret){
@@ -380,6 +386,34 @@ QVariant DatabaseManager::insertStarttime(const QVariant& pid,
     }
     return retval;
 }
+
+QVariant DatabaseManager::updateTimesheet(const QVariant& id,
+                                          const QVariant& pid,
+                                          const QVariant& starttime,
+                                          const QVariant& endtime)
+{
+    bool ret = false;
+    QTime zerotime;
+
+    // Update timesheet entry
+    QSqlQuery query2;
+    ret = query2.prepare("UPDATE timesheet SET project_id = :pid, start_time = :start_time, "
+                         "end_time = :end_time, run_time = :run_time WHERE id = :id");
+    if (ret) {
+        query2.bindValue(":pid", pid.toInt());
+        query2.bindValue(":start_time", starttime.toDateTime());
+        query2.bindValue(":end_time", endtime.toDateTime());
+        query2.bindValue(":run_time", zerotime.addSecs(starttime.toDateTime().secsTo(endtime.toDateTime())));
+        query2.bindValue(":id", id.toInt());
+        query2.exec();
+    }
+    if (!ret){
+        qDebug() << "SQL Error..:" << query2.lastError();
+        qDebug() << "SQL Error..:" << query2.lastError().driverText();
+    }
+    return QVariant(ret);
+}
+
 
 QVariant DatabaseManager::updateEndtime(const QVariant& id,
                                         const QVariant& endtime)
@@ -434,7 +468,7 @@ QObject* DatabaseManager::timesheet(const int id)
 QList<int> DatabaseManager::countTimesheet(const int id)
 {
     QList<int> itemList;
-    QSqlQuery query(QString("SELECT id FROM timesheet WHERE project_id = %1").arg(id));
+    QSqlQuery query(QString("SELECT id FROM timesheet WHERE project_id = %1 ORDER BY start_time DESC").arg(id));
     while (query.next()) {
         int item = query.value(0).toInt();
         itemList.append(item);

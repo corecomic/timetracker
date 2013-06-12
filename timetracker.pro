@@ -7,7 +7,14 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 # Add more folders to ship with the application, here
 folder_01.source = qml/timetracker
 folder_01.target = qml
-DEPLOYMENTFOLDERS = folder_01
+folder_02.source = qml/harmattan-timepicker
+folder_02.target = qml
+folder_03.source = qml/harmattan-datepicker
+folder_03.target = qml
+DEPLOYMENTFOLDERS += \
+    folder_01 \
+    folder_02 \
+    folder_03
 
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
@@ -53,7 +60,8 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/copyright \
     qtc_packaging/debian_harmattan/control \
     qtc_packaging/debian_harmattan/compat \
-    qtc_packaging/debian_harmattan/changelog
+    qtc_packaging/debian_harmattan/changelog \
+    TODO
 
 HEADERS += \
     src/databasemanager.h

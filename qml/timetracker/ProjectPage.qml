@@ -3,7 +3,8 @@ import com.nokia.meego 1.0 // MeeGo 1.2 Harmattan components
 
 import "UIConstants.js" as UIConstants
 
-Page {
+
+Sheet {
     id: projectPage
 
     property int projectID: -1
@@ -21,66 +22,35 @@ Page {
         else {
             db.insertProject(nameField.text, descriptionField.text);
         }
-
-        appWindow.pageStack.pop();
     }
 
 
     // Page content
-    ScrollDecorator {
-        flickableItem: flickable
+    acceptButtonText: "Save"
+    rejectButtonText: "Cancel"
+
+    onAccepted: {
+        projectPage.addProjectToDatabase();
+        mainPage.fillListModel();
     }
-
-    // Page Header
-    PageHeader {
-        id: appTitleRect
-        color: "lightgray"
-        //text: ""
-
-        ToolBarLayout {
-            Item { width: UIConstants.SMALL_MARGIN } // Make margins
-            ToolButton {
-                id: cancelButton
-                flat: false
-                text: "Cancel"
-                onClicked: appWindow.pageStack.pop();
-            }
-            Item { width: UIConstants.BUTTON_SPACING } // Space between
-            ToolButton {
-                id: saveButton
-                flat: false
-                text: "Save"
-                onClicked: projectPage.addProjectToDatabase();
-            }
-            Item { width: UIConstants.SMALL_MARGIN } // Make margins
-        }
-    }
-
+    onRejected: { }
 
     // Formular
-    Flickable {
+    content: Flickable {
         id: flickable
-
-        anchors {
-            top: appTitleRect.bottom
-            left: parent.left
-            right: parent.right
-            margins: 10
-        }
-
-        flickableDirection: Flickable.VerticalFlick
-        //contentHeight: (grid.columns == 1) ? nameText.height * 6 + 70 : nameText.height * 4 + 50;
-
+        anchors.fill: parent
+        clip: true
+        contentWidth: parent.width
+        contentHeight: grid.height
 
         Grid {
             id: grid
-            width: parent.width - anchors.margins * 2
 
             anchors {
                 top: parent.top
                 left: parent.left
                 right: parent.right
-                margins: 5
+                margins: UIConstants.DEFAULT_MARGIN
             }
 
             columns: projectPage.width > projectPage.height ? 2 : 1
@@ -89,7 +59,7 @@ Page {
             // Project name information
             Text {
                 id: nameText
-                width: parent.width * 0.15
+                width: parent.width * 0.25
                 height: nameField.height
                 color: UIConstants.COLOR_FOREGROUND
                 verticalAlignment: Text.AlignVCenter

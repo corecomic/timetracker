@@ -34,7 +34,11 @@ Page {
         "The user can then start defining projects he wants to track. "+
         "After one or more projects have been created, the time spent on each "+
         "is tracked by switching it on/off. A tracking period is maximal 24 hours." +
-        "</p>";
+        "</p>" +
+        "<p><br></p>" +
+        "<h5>" +
+        "An application by <i>core.comic@gmail.com</i>"+
+        "</h5>";
 
     Flickable {
         id: flickable

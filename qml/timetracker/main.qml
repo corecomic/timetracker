@@ -17,7 +17,7 @@ PageStackWindow {
         ToolIcon {
             platformIconId: "toolbar-add"
             anchors.left: (parent === undefined) ? undefined : parent.left
-            onClicked: appWindow.pageStack.push(Qt.resolvedUrl("ProjectPage.qml"))
+            onClicked: projectSheet.open()
         }
         ToolIcon {
             platformIconId: "toolbar-refresh"
@@ -30,8 +30,9 @@ PageStackWindow {
             onClicked: (myMenu.status === DialogStatus.Closed) ? myMenu.open() : myMenu.close()
         }
 
-
-        // TODO: Add new project icon.
+    }
+    ProjectPage {
+        id: projectSheet
     }
 
     ToolBarLayout {
@@ -53,7 +54,18 @@ PageStackWindow {
         rejectButtonText: "Cancel"
         onAccepted: {
             db.deleteDB()
-            mainPage.fillListModel()
+            endDialog.open()
+        }
+    }
+
+    // End dialog
+    QueryDialog {
+        id: endDialog
+        titleText: "Close application!"
+        message: "The application will now be closed. To create a new database just reopen the application."
+        acceptButtonText: "Ok"
+        onAccepted: {
+            Qt.quit()
         }
     }
 

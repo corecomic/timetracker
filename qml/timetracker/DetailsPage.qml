@@ -5,12 +5,15 @@ import "UIConstants.js" as UIConstants
 
 Page {
     id: detailsPage
-    tools: topLevelTools
+    tools: detailTools
 
     property int projectID
     property string projectName
     property string projectDescription
     property int projectActive
+
+    property QueryDialog deleteDialog
+    property int pIndex: -1
 
     /**
      * Fill list model with database values
@@ -45,51 +48,71 @@ Page {
         listView.model = listModel;
     }
 
+    /**
+     * Get total time
+     */
+    function setTotalTime()
+    {
+        var totalSecs = db.selectTotalTime(projectID);
+        var date = new Date(((totalSecs % 86400)-3600) * 1e3);
+        if (totalSecs >= 2*86400) {
+            timeHeaderText.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " days, " + Qt.formatDateTime(date, 'hh:mm:ss');
+        }
+        else if (totalSecs >= 86400) {
+            timeHeaderText.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " day, " + Qt.formatDateTime(date, 'hh:mm:ss');
+        }
 
-//    /**
-//     * Displays the delete query dialog.
-//     */
-//    function showDeleteDialog(index, name)
-//    {
-//        if (!deleteDialog) {
-//            deleteDialog = deleteDialogComponent.createObject(mainPage);
-//        }
+        else {
+            timeHeaderText.text = "Total time: " + Qt.formatDateTime(date, 'hh:mm:ss');
+        }
+    }
 
-//        deleteDialog.message = "Do you realy want to delete the project: " + name + "?";
-//        deleteDialog.open();
 
-//        pIndex = index;
-//    }
+    /**
+     * Displays the delete query dialog.
+     */
+    function showDeleteDialog(index)
+    {
+        if (!deleteDialog) {
+            deleteDialog = deleteDialogComponent.createObject(detailsPage);
+        }
 
-//    /**
-//     * Deletes the project from the database.
-//     */
-//    function deleteProjectFromDatabase()
-//    {
-//        if (pIndex !== -1){
-//            db.deleteProject(pIndex);
-//        }
-//        appWindow.pageStack.pop();
-//        fillListModel();
-//    }
+        deleteDialog.message = "Do you realy want to delete the time entry?";
+        deleteDialog.open();
 
-//    // Delete dialog
-//    Component {
-//        id: deleteDialogComponent
+        pIndex = index;
+    }
 
-//        QueryDialog {
-//            titleText: "Delete?"
-//            message: ""
-//            acceptButtonText: "Delete"
-//            rejectButtonText: "Cancel"
-//            onAccepted: deleteProjectFromDatabase();
-//        }
-//    }
+    /**
+     * Deletes the project from the database.
+     */
+    function deleteTimesheetFromDatabase()
+    {
+        if (pIndex !== -1){
+            db.deleteTimesheet(pIndex);
+        }
+        fillListModel();
+        setTotalTime();
+    }
+
+    // Delete dialog
+    Component {
+        id: deleteDialogComponent
+
+        QueryDialog {
+            titleText: "Delete?"
+            message: ""
+            acceptButtonText: "Delete"
+            rejectButtonText: "Cancel"
+            onAccepted: deleteTimesheetFromDatabase();
+        }
+    }
 
     // Update page data on page PageStatus.Activating state
     onStatusChanged: {
         if (status === PageStatus.Activating) {
             fillListModel();
+            setTotalTime();
         }
         //console.debug("DetailsPage.qml: onStatusChanged:", status);
     }
@@ -118,6 +141,7 @@ Page {
         }
 
         Text {
+            id: timeHeaderText
             anchors.centerIn: parent
             color: UIConstants.COLOR_FOREGROUND
 
@@ -126,31 +150,8 @@ Page {
                 pixelSize: UIConstants.FONT_DEFAULT
             }
 
-            text: {
-                var totalSecs = db.selectTotalTime(projectID);
-                var date = new Date(((totalSecs % 86400)-3600) * 1e3);
-                if (totalSecs >= 2*86400) {
-                    return "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " days, " + Qt.formatDateTime(date, 'hh:mm:ss');
-                }
-                else if (totalSecs >= 86400) {
-                    return "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " day, " + Qt.formatDateTime(date, 'hh:mm:ss');
-                }
-
-                else {
-                    return "Total time: " + Qt.formatDateTime(date, 'hh:mm:ss');
-                }
-
-
-            }
+            text: ""
         }
-
-//        Rectangle {
-//          height: 1
-//          width: parent.width
-//          anchors.top: parent.bottom
-//          anchors.topMargin: 1
-//          color: "white"
-//        }
     }
 
     // Page Content - List
@@ -169,6 +170,7 @@ Page {
         model: listModel
         focus: true
     }
+
 
     ListModel {
         id: listModel
@@ -193,74 +195,89 @@ Page {
             height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
             width: listView.width
 
-            Rectangle {
-                radius: 8
+            MyListItem {
+                id: listItemContent
                 anchors.fill: parent
-                opacity: 0.7
-                color: "lightsteelblue"
-                visible: itemMouseArea.pressed
+
+                title {
+                    text: {
+                        if (model.runtime.toString()) {
+                            return model.runtime;
+                        }
+                        else {
+                            return "Running..."
+                        }
+                    }
+                    font.bold: false
+                }
+                subtitle {
+                    text: {
+                        if (model.endtime.toString() !== "Invalid Date") {
+                            return Qt.formatDateTime(model.starttime, 'dd.MM.yy | hh:mm') + " - " + Qt.formatDateTime(model.endtime, 'hh:mm');
+                        }
+                        else {
+                            return Qt.formatDateTime(model.starttime, 'dd.MM.yy | hh:mm');
+                        }
+                    }
+                    color: "steelblue"
+                    font.pixelSize: UIConstants.FONT_XSMALL
+                }
+
+                onPressAndHold: {
+                    listView.currentIndex = index;
+                    contextMenu.open();
+                }
+                iconVisible: false
             }
+        }
+    }
+    ContextMenu {
+        id: contextMenu
 
-            Row {
-                spacing: 20
-                anchors.fill: parent
-
-                Column {
-                    id: columnComponent
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    Text {
-                        color: UIConstants.COLOR_FOREGROUND
-
-                        font {
-                            family: UIConstants.FONT_FAMILY
-                            pixelSize: UIConstants.FONT_DEFAULT
-                            bold: false
-                        }
-
-
-                        text: {
-                            if (model.runtime.toString()) {
-                                return model.runtime;
-                            }
-                            else {
-                                return "Running..."
-                            }
-                        }
-
-
-                        MouseArea {
-                            id: itemMouseArea
-                            //anchors.fill: parent
-                            width: columnComponent.width
-                            height: UIConstants.LIST_ITEM_HEIGHT_DEFAULT
-                            onPressAndHold: {
-                                listView.currentIndex = index;
-                                contextMenu.open();
-                            }
-                        }
-                    }
-                    Text {
-                        color: "steelblue"
-
-                        font {
-                            family: UIConstants.FONT_FAMILY
-                            pixelSize: UIConstants.FONT_XSMALL
-                        }
-
-                        text: {
-                            if (model.endtime.toString() !== "Invalid Date") {
-                                return Qt.formatDateTime(model.starttime, 'dd.MM.yy | hh:mm') + " - " + Qt.formatDateTime(model.endtime, 'hh:mm');
-                            }
-                            else {
-                                return Qt.formatDateTime(model.starttime, 'dd.MM.yy | hh:mm');
-                            }
-                        }
-                        width: listView.width
-                    }
-
+        MenuLayout {
+            MenuItem {
+                text: "Edit"
+                onClicked: {
+                    var currIndex = listView.currentIndex;
+                    var listModelItem = listModel.get(currIndex);
+                    timesheetPage.projectID = listModelItem.projectID;
+                    timesheetPage.timesheetID = listModelItem.timesheetID;
+                    timesheetPage.startTime = listModelItem.starttime;
+                    timesheetPage.endTime = listModelItem.endtime;
+                    timesheetPage.open();
+                }
+            }
+            MenuItem {
+                text: "Delete"
+                onClicked: {
+                    var currIndex = listView.currentIndex;
+                    var listModelItem = listModel.get(currIndex);
+                    detailsPage.showDeleteDialog(listModelItem.timesheetID);
                 }
             }
         }
+    }
+    ToolBarLayout {
+        id: detailTools
+        visible: false
+        Item {}
+        ToolIcon {
+            platformIconId: "toolbar-back"
+            anchors.left: (parent === undefined) ? undefined : parent.left
+            onClicked: appWindow.pageStack.pop()
+        }
+        ToolIcon {
+            platformIconId: "toolbar-add"
+            anchors.centerIn: (parent === undefined) ? undefined : parent
+            onClicked: {
+                timesheetPage.projectID = projectID;
+                timesheetPage.startTime = new Date();
+                timesheetPage.endTime = new Date();
+                timesheetPage.open();
+            }
+        }
+    }
+    TimesheetPage {
+        id: timesheetPage
     }
 }
