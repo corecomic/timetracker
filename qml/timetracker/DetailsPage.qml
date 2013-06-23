@@ -12,6 +12,9 @@ Page {
     property string projectDescription
     property int projectActive
 
+    // viewIndex: 0-All, 1-Today, 2-Week, 3-Month
+    property int viewIndex: 0
+
     property QueryDialog deleteDialog
     property int pIndex: -1
 
@@ -29,11 +32,22 @@ Page {
 
         for (var i = 0; i < timesheetIdList.length; i++){
             var timesheetData = db.timesheet(timesheetIdList[i]);
+            var dateTime = new Date();
+            var sectionString = "";
+            if (Qt.formatDate(timesheetData.starttime) == Qt.formatDate(dateTime)) {
+                sectionString = "Today";
+            }
+            else{
+                sectionString = "Older";
+            }
+
             listModel.append({ "starttime": timesheetData.starttime,
                                "endtime": timesheetData.endtime,
                                "runtime": timesheetData.runtime,
                                "projectID": timesheetData.pindex,
-                               "timesheetID": timesheetData.index});
+                               "timesheetID": timesheetData.index,
+                               "header": sectionString
+                             });
         }
 
         if (listModel.count < 1) {
@@ -126,12 +140,16 @@ Page {
     PageHeader {
         id: appTitleRect
         text: projectName
+        icon: true
+        onClicked: {
+            selectViewDialog.open();
+        }
     }
 
     // Total Time
     Item {
         id: timeHeader
-        height: UIConstants.FIELD_DEFAULT_HEIGHT
+        height: UIConstants.FIELD_SMALL_HEIGHT
 
         anchors {
             top: appTitleRect.bottom
@@ -169,8 +187,18 @@ Page {
         delegate: listDelegate
         model: listModel
         focus: true
-    }
 
+        section.property: "header"
+        section.criteria: ViewSection.FullString
+        section.delegate: sectionHeader
+    }
+    Component {
+        id: sectionHeader
+        SectionHeader {
+            text: section
+            height: 32
+        }
+    }
 
     ListModel {
         id: listModel
@@ -231,6 +259,23 @@ Page {
             }
         }
     }
+    SelectionDialog {
+        id: selectViewDialog
+        titleText: "Select view"
+        selectedIndex: viewIndex
+
+        model: ListModel {
+            ListElement { name: "All data" }
+            ListElement { name: "Today" }
+            ListElement { name: "This week" }
+            ListElement { name: "This month" }
+        }
+
+        onClicked: {
+            viewIndex = selectedIndex;
+        }
+    }
+
     ContextMenu {
         id: contextMenu
 

@@ -3,10 +3,9 @@ import com.nokia.meego 1.0
 
 import "UIConstants.js" as UIConstants
 
-
 Page {
     id: mainPage
-    tools: commonTools
+    tools: (listModel.count == 0) ? null : commonTools
 
     property QueryDialog deleteDialog
     property int pIndex: -1
@@ -86,15 +85,21 @@ Page {
         }
     }
 
-
-
-
     // Update page data on page PageStatus.Activating state
     onStatusChanged: {
         if (status === PageStatus.Activating) {
             fillListModel();
         }
         //console.debug("MainPage.qml: onStatusChanged:", status);
+    }
+
+    // Empty Page
+    EmptyPage {
+        id: emptyPage
+        anchors.fill: parent
+        anchors.topMargin: -40
+        visible: (listModel.count == 0)
+        z: 100
     }
 
     // Page Header
@@ -113,9 +118,10 @@ Page {
         anchors {
             top: appTitleRect.bottom
             left: parent.left
+            leftMargin: UIConstants.HALF_DEFAULT_MARGIN
             right: parent.right
+            rightMargin: UIConstants.HALF_DEFAULT_MARGIN
             bottom: parent.bottom
-            margins: UIConstants.HALF_DEFAULT_MARGIN
         }
 
         clip: true
@@ -324,5 +330,4 @@ Page {
     ProjectPage {
         id: projectSheet
     }
-
 }

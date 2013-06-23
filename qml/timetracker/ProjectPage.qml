@@ -8,8 +8,8 @@ Sheet {
     id: projectPage
 
     property int projectID: -1
-    property string projectName
-    property string projectDescription
+    property string projectName: ""
+    property string projectDescription: ""
 
     /**
      * Adds or updates the rent data into the database.
@@ -33,7 +33,8 @@ Sheet {
         projectPage.addProjectToDatabase();
         mainPage.fillListModel();
     }
-    onRejected: { }
+    onRejected: {
+    }
 
     // Formular
     content: Flickable {
@@ -77,6 +78,7 @@ Sheet {
                            parent.width : parent.width - nameText.width - grid.spacing;
                 placeholderText: "Enter name"
                 text: projectName
+                focus: true
             }
 
             // Project description information

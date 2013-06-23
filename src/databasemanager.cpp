@@ -145,18 +145,20 @@ bool DatabaseManager::openDB()
 {
     // Find QSLite driver
     db = QSqlDatabase::addDatabase("QSQLITE");
+    QDir rootdir(QDir::root());
 
     QString newpath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    newpath.append(QDir::separator()).append("time-tracker");
-    //QDir::mkpath(newpath);
-    newpath = QDir::toNativeSeparators(newpath);
+    newpath.append(QDir::separator()).append("timetracker");
     qDebug() << "SQL DataLocation..:" << newpath;
+    rootdir.mkpath(newpath);
+    newpath.append(QDir::separator()).append("timetracker_0.1.db.sqlite");
+    newpath = QDir::toNativeSeparators(newpath);
 
     QString path(QDir::home().path());
-    path.append(QDir::separator()).append("time-tracker.db.sqlite");
+    path.append(QDir::separator()).append("timetracker_0.1.db.sqlite");
     path = QDir::toNativeSeparators(path);
 
-    db.setDatabaseName(path);
+    db.setDatabaseName(newpath);
 
     // Open databasee
     return db.open();
@@ -210,7 +212,8 @@ bool DatabaseManager::createProjectTable()
                          "name VARCHAR(60) NOT NULL, "
                          "description VARCHAR(200), "
                          "creation_date TIMESTAMP, "
-                         "active_flag INTEGER DEFAULT(-1))");
+                         "active_flag INTEGER DEFAULT(-1), "
+                         "salary FLOAT)");
         if (!ret){
             qDebug() << "SQL Error..:" << query.lastError();
             qDebug() << "SQL Error..:" << query.lastError().driverText();

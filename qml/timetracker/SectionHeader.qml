@@ -12,7 +12,7 @@ Item {
     width: parent.width
     height: 40 // TODO UIConstants
 
-    property alias section: headerLabel.text
+    property alias text: headerLabel.text
 
     Text {
         id: headerLabel

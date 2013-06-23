@@ -12,12 +12,16 @@ PageStackWindow {
 
     ToolBarLayout {
         id: commonTools
-        visible: true
+        visible: false
         Item {}
         ToolIcon {
             platformIconId: "toolbar-add"
             anchors.left: (parent === undefined) ? undefined : parent.left
-            onClicked: projectSheet.open()
+            onClicked: {
+                projectSheet.projectName = "";
+                projectSheet.projectDescription = "";
+                projectSheet.open()
+            }
         }
         ToolIcon {
             platformIconId: "toolbar-refresh"
@@ -74,7 +78,7 @@ PageStackWindow {
         visualParent: pageStack
         MenuLayout {
             MenuItem {
-                text: qsTr("Delete Database")
+                text: qsTr("Delete database")
                 onClicked: deleteDialog.open()
             }
             MenuItem {
@@ -82,6 +86,11 @@ PageStackWindow {
                 onClicked: appWindow.pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
         }
+    }
+
+    // Watch orientation changes
+    onOrientationChangeStarted: {
+        showStatusBar = (screen.currentOrientation !== Screen.Landscape);
     }
 }
 

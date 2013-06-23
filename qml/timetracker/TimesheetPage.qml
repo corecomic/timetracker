@@ -58,7 +58,7 @@ Sheet {
             // Start Time
             SectionHeader {
                 id: startHeader
-                section: "Start"
+                text: "Start"
             }
             MyListItem {
                 id: starttimeItem
@@ -115,7 +115,7 @@ Sheet {
             SectionHeader {
                 id: endHeader
                 anchors.top: startdateItem.bottom
-                section: "End"
+                text: "End"
             }
             MyListItem {
                 id: endtimeItem

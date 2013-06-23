@@ -8,13 +8,26 @@ Rectangle {
 
     property alias text: appTitle.text
     property alias busy: busyIndicator.running
+    property alias icon: icon.visible
 
-    height: UIConstants.HEADER_DEFAULT_HEIGHT_PORTRAIT
+    signal clicked
+
+    height: (screen.currentOrientation === Screen.Landscape) ?
+                UIConstants.HEADER_DEFAULT_HEIGHT_LANDSCAPE :
+                UIConstants.HEADER_DEFAULT_HEIGHT_PORTRAIT
     color: "steelblue"
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
 
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        enabled: icon.visible
+        onClicked: {
+            root.clicked();
+        }
+    }
 
     Label {
         id: appTitle
@@ -22,7 +35,7 @@ Rectangle {
             verticalCenter: parent.verticalCenter
             left: parent.left
             leftMargin: UIConstants.DEFAULT_MARGIN
-            right: parent.right
+            right: icon.visible ? icon.left : parent.right
             rightMargin: UIConstants.DEFAULT_MARGIN
         }
         font.pixelSize: UIConstants.FONT_XLARGE
@@ -31,18 +44,23 @@ Rectangle {
         elide: Text.ElideRight
     }
 
-    Rectangle {
-      height: 1
-      width: parent.width
-      anchors.bottom: parent.bottom
-      color: "#10000000"
+    Image {
+        id: icon
+        anchors {
+            right: parent.right
+            rightMargin: UIConstants.DEFAULT_MARGIN
+            verticalCenter: parent.verticalCenter
+        }
+        height: sourceSize.height
+        width: sourceSize.width
+        source: "image://theme/meegotouch-combobox-indicator-inverted"
+        visible: false
     }
 
     Rectangle {
       height: 1
       width: parent.width
-      anchors.top: parent.bottom
-      anchors.topMargin: 1
+      anchors.bottom: parent.bottom
       color: "white"
     }
 
@@ -50,7 +68,7 @@ Rectangle {
         id: busyIndicator
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: 12
+        anchors.rightMargin: UIConstants.DEFAULT_MARGIN
         opacity: running ? 1.0 : 0.0
         running: false
     }

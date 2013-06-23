@@ -4,7 +4,7 @@ Version=1.0
 Type=Application
 Terminal=false
 Name=Time Tracker
-Exec=/usr/bin/invoker --type=d -s /opt/timetracker/bin/timetracker
+Exec=/usr/bin/invoker --type=d --splash=default -s /opt/timetracker/bin/timetracker
 Icon=/usr/share/icons/hicolor/80x80/apps/timetracker80.png
 X-Window-Icon=
 X-HildonDesk-ShowInToolbar=true
