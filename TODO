@@ -1,0 +1,47 @@
+#--- GENERAL ------------------------------------------------------------------#
+[x] database location
+[ ] licensing
+[ ] update check -> import old database
+[ ] error handling (unable to create/open database)
+
+
+#--- DESIGN -------------------------------------------------------------------#
+[ ] list seperator lines -> find week of year
+[o] selection rectangles correct size
+[o] list should look like the one in clock application
+[o] toolbar header buttons
+[o] landscape view: fullscreen, smaller header
+[ ] theme: light/dark
+
+
+#--- TOFIX --------------------------------------------------------------------#
+[x] update total time header when item deleted/added
+[ ] edit/add running time entry
+[ ] check start-/endtime when adding/editing time entry
+[ ] set start-/endtime according possibilities when adding/editing time entry
+[ ] allow runtimes larger than 24h
+[ ] EmptyPage should only be showed when app was not used before
+[~] fix margins of empty page shown (gap at top)
+
+
+
+#--- FEATURES -----------------------------------------------------------------#
+[ ] use settings framework
+[ ] use harmattan time-/datepicker
+[ ] add different views for detailspage
+    [ ] daily (can easily switch day)
+    [ ] weekly (can easily switch week)
+    [ ] monthly (can easily switch month)
+[ ] syncronize database over git/dropbox/whatnot
+[ ] editing/adding time entries like in native event composer
+[ ] add splash screen, edit invoker in .desktop as follows:
+    --splash=/opt/timetracker/qml/timetracker/splash.jpg
+    --splash-landscape=/opt/timetracker/qml/timetracker/splash-l.jpg
+[ ] might use Loader property
+[ ] export as xls/csl
+[ ] allow sorting of projects -> settings
+
+
+
+
+
