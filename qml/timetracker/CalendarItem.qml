@@ -2,6 +2,7 @@ import QtQuick 1.1
 import com.nokia.meego 1.0 // MeeGo 1.2 Harmattan components
 import com.nokia.extras 1.1 // Extras
 
+import "../harmattan-datepicker"
 import "UIConstants.js" as UIConstants
 
 Item {
@@ -87,4 +88,25 @@ Item {
         }
         onRejected: { }
     }
+
+//    DatePicker {
+//        id: datePicker
+
+//        anchors {
+//            top: parent.top
+//            horizontalCenter: parent.horizontalCenter
+//        }
+//        opacity: 0
+
+//        function orientationString() {
+//            if (screen.currentOrientation === Screen.Portrait || screen.currentOrientation === Screen.PortraitInverted )
+//                return "portrait"
+//            else
+//                return "landscape"
+//        }
+
+//        platformStyle: DatePickerStyle {
+//            orientationString: datePicker.orientationString()
+//        }
+//    }
 }

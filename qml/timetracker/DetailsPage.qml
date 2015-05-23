@@ -34,12 +34,32 @@ Page {
             var timesheetData = db.timesheet(timesheetIdList[i]);
             var dateTime = new Date();
             var sectionString = "";
-            if (Qt.formatDate(timesheetData.starttime) == Qt.formatDate(dateTime)) {
-                sectionString = "Today";
-            }
-            else{
+            if (timesheetData.starttime.getFullYear() === dateTime.getFullYear()) {
+                if (timesheetData.starttime.getMonth() === dateTime.getMonth()) {
+                    // find week of year
+                    if (1 === 1){
+                        if (timesheetData.starttime.getDate() === dateTime.getDate()) {
+                            sectionString = "Today";
+                        }
+                        else if (timesheetData.starttime.getDate() === dateTime.getDate()-1) {
+                            sectionString = "Yesterday";
+                        }
+                        else{
+                            //sectionString = Qt.formatDate(timesheetData.starttime, 'dddd');
+                            sectionString = "This Month";
+                        }
+                    } else {
+                        sectionString = "Last Week";
+                    }
+                } else if (timesheetData.starttime.getMonth() === dateTime.getMonth()-1) {
+                    sectionString = "Last Month";
+                } else {
+                    sectionString = Qt.formatDate(timesheetData.starttime, 'MMMM');
+                }
+            } else {
                 sectionString = "Older";
             }
+
 
             listModel.append({ "starttime": timesheetData.starttime,
                                "endtime": timesheetData.endtime,
@@ -58,7 +78,6 @@ Page {
             //addResourcesBtn.opacity = 0;
             listView.opacity = 1;
         }
-
         listView.model = listModel;
     }
 
@@ -70,14 +89,14 @@ Page {
         var totalSecs = db.selectTotalTime(projectID);
         var date = new Date(((totalSecs % 86400)-3600) * 1e3);
         if (totalSecs >= 2*86400) {
-            timeHeaderText.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " days, " + Qt.formatDateTime(date, 'hh:mm:ss');
+            timeHeader.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " days, " + Qt.formatDateTime(date, 'hh:mm:ss');
         }
         else if (totalSecs >= 86400) {
-            timeHeaderText.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " day, " + Qt.formatDateTime(date, 'hh:mm:ss');
+            timeHeader.text = "Total time: " + (totalSecs - (totalSecs % 86400))/86400 + " day, " + Qt.formatDateTime(date, 'hh:mm:ss');
         }
 
         else {
-            timeHeaderText.text = "Total time: " + Qt.formatDateTime(date, 'hh:mm:ss');
+            timeHeader.text = "Total time: " + Qt.formatDateTime(date, 'hh:mm:ss');
         }
     }
 
@@ -147,28 +166,15 @@ Page {
     }
 
     // Total Time
-    Item {
+    DetailsTimeHeader {
         id: timeHeader
-        height: UIConstants.FIELD_SMALL_HEIGHT
+
+        showArrows: false
 
         anchors {
             top: appTitleRect.bottom
             left: parent.left
             right: parent.right
-            topMargin: UIConstants.SMALL_MARGIN
-        }
-
-        Text {
-            id: timeHeaderText
-            anchors.centerIn: parent
-            color: UIConstants.COLOR_FOREGROUND
-
-            font {
-                family: UIConstants.FONT_FAMILY
-                pixelSize: UIConstants.FONT_DEFAULT
-            }
-
-            text: ""
         }
     }
 
@@ -178,9 +184,10 @@ Page {
         anchors {
             top: timeHeader.bottom
             left: parent.left
+            leftMargin: UIConstants.DEFAULT_MARGIN
             right: parent.right
+            rightMargin: UIConstants.DEFAULT_MARGIN
             bottom: parent.bottom
-            margins: UIConstants.DEFAULT_MARGIN
         }
 
         clip: true
@@ -202,6 +209,12 @@ Page {
 
     ListModel {
         id: listModel
+        function getElement(index) {
+            return listModel.get(index);
+        }
+        function getCount() {
+            return listModel.count;
+        }
     }
 
     ListModel {
@@ -319,6 +332,13 @@ Page {
                 timesheetPage.startTime = new Date();
                 timesheetPage.endTime = new Date();
                 timesheetPage.open();
+            }
+        }
+        ToolIcon {
+            platformIconId: "toolbar-directory-move-to"
+            anchors.right: (parent === undefined) ? undefined : parent.right
+            onClicked: {
+                em.csvExport(listModel);
             }
         }
     }

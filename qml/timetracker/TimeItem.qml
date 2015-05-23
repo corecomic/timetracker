@@ -91,20 +91,20 @@ Item {
     }
 
 
-    TimePicker {
-        id: timePicker
-        anchors.centerIn: parent
-        opacity: 0
+//    TimePicker {
+//        id: timePicker
+//        anchors.centerIn: parent
+//        opacity: 0
 
-        function orientationSuffix() {
-            if (screen.currentOrientation === Screen.Portrait || screen.currentOrientation === Screen.PortraitInverted )
-                return "portrait"
-            else
-                return "landscape"
-        }
+//        function orientationSuffix() {
+//            if (screen.currentOrientation === Screen.Portrait || screen.currentOrientation === Screen.PortraitInverted )
+//                return "portrait"
+//            else
+//                return "landscape"
+//        }
 
-        backgroundImage: "image://theme/meegotouch-timepicker-light-1-" + orientationSuffix()
-        hourDotImage: "image://theme/meegotouch-timepicker-disc-hours-" + orientationSuffix()
-        minutesDotImage: "image://theme/meegotouch-timepicker-disc-minutes-" + orientationSuffix()
-    }
+//        backgroundImage: "image://theme/meegotouch-timepicker-light-1-" + orientationSuffix()
+//        hourDotImage: "image://theme/meegotouch-timepicker-disc-hours-" + orientationSuffix()
+//        minutesDotImage: "image://theme/meegotouch-timepicker-disc-minutes-" + orientationSuffix()
+//    }
 }

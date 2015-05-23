@@ -17,7 +17,8 @@ DEPLOYMENTFOLDERS += \
     folder_03
 
 # Additional import path used to resolve QML modules in Creator's code model
-QML_IMPORT_PATH =
+#QML_IMPORT_PATH += /opt/meego/Simulator/Qt/gcc/imports/simulatorHarmattan/ \
+#    /opt/meego/Simulator/Qt/gcc/harmattanthemes/blanco/meegotouch/
 
 symbian:TARGET.UID3 = 0xEF87556A
 
@@ -47,7 +48,8 @@ CONFIG += qdeclarative-boostable
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
-    src/databasemanager.cpp
+    src/databasemanager.cpp \
+    src/exportmanager.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -64,4 +66,5 @@ OTHER_FILES += \
     TODO
 
 HEADERS += \
-    src/databasemanager.h
+    src/databasemanager.h \
+    src/exportmanager.h

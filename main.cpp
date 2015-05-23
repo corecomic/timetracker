@@ -4,6 +4,7 @@
 #include "qmlapplicationviewer.h"
 
 #include "src/databasemanager.h"
+#include "src/exportmanager.h"
 
 Q_DECL_EXPORT int main(int argc, char *argv[])
 {
@@ -15,6 +16,10 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
     DatabaseManager* db = new DatabaseManager();
     db->open();
     viewer.rootContext()->setContextProperty("db", db);
+
+    // Setting export Qt class handle to QML
+    ExportManager* em = new ExportManager();
+    viewer.rootContext()->setContextProperty("em", em);
 
     // Set application version
     app->setApplicationVersion(APP_VERSION);
